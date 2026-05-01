@@ -189,7 +189,6 @@
   </div>
 </div>
 
-<!-- ... (Keep existing CSS) ... -->
 
 <script>
   let questions = [];
@@ -226,7 +225,7 @@
 
     // 1. Check Daily Limit
     if (getDailyCount() >= DAILY_LIMIT) {
-      return alert(`Daily limit reached (${DAILY_LIMIT} quizzes). Please come back tomorrow to save API costs!`);
+      return alert(`Daily limit reached (${DAILY_LIMIT} quizzes). Please come back tomorrow!`);
     }
 
     // 2. Check Cache (Saves API usage for repeat topics)

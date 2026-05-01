@@ -12,9 +12,9 @@ app.use(express.static('public'));
 
 // LOGGING: Check if API Key exists on startup
 if (!process.env.GEMINI_API_KEY) {
-    console.log("⚠️  WARNING: GEMINI_API_KEY is not defined in your .env file!");
+    console.log("WARNING: GEMINI_API_KEY is not defined in your .env file!");
 } else {
-    console.log("✅ API Key detected.");
+    console.log("API Key detected.");
 }
 
 app.post('/api/chat', async (req, res) => {
