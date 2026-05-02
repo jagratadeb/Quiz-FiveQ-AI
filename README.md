@@ -3,8 +3,11 @@
 ## 📋 Project Overview
 
 **Project Name:** Quiz FiveQ AI (Quiz Buddy)
+
 **Version:** 2.1.5
-**Type:** Full-Stack Web Application  
+
+**Type:** Full-Stack Web Application
+  
 **Purpose:** An AI-powered interactive quiz generation platform that dynamically creates 5-question quizzes on any user-specified topic using Google's Gemini AI models.
 
 ---
