@@ -1,8 +1,8 @@
-# Quiz Buddy - Project Documentation
+# Quiz FiveQ AI - Project Documentation
 
 ## 📋 Project Overview
 
-**Project Name:** Quiz FiveQ AI (Quiz Buddy)
+**Project Name:** Quiz FiveQ AI)
 
 **Version:** 2.1.7
 
@@ -14,7 +14,7 @@
 
 ## 🎯 Project Description
 
-Quiz Buddy is a web application that leverages artificial intelligence to generate custom quizzes on demand. Users enter a topic of their choice, and the application uses Google's Gemini AI API to intelligently generate five questions with multiple-choice options, correct answers, and educational explanations. The application features a modern, responsive user interface with real-time scoring, caching mechanisms to optimize API usage, and daily usage limits to prevent abuse.
+Quiz FiveQ is a web application that leverages artificial intelligence to generate custom quizzes on demand. Users enter a topic of their choice, and the application uses Google's Gemini AI API to intelligently generate five questions with multiple-choice options, correct answers, and educational explanations. The application features a modern, responsive user interface with real-time scoring, caching mechanisms to optimize API usage, and daily usage limits to prevent abuse.
 
 ---
 
@@ -101,7 +101,7 @@ Quiz Buddy is a web application that leverages artificial intelligence to genera
 ## 📁 Project Structure
 
 ```
-Quiz Buddy/
+Quiz FiveQ/
 ├── package.json                 # Node.js project metadata and dependencies
 ├── server.js                    # Express server entry point
 ├── .env                         # Environment variables (GEMINI_API_KEY)
