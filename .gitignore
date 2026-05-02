@@ -7,3 +7,4 @@ package-lock.json
 dist/
 coverage/
 *.log
+GIT_VERSION_COMMANDS.md
