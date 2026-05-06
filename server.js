@@ -1,7 +1,5 @@
 import express from "express";
 import dotenv from "dotenv";
-import path from "path";
-import { fileURLToPath } from "url";
 import { readFileSync } from "fs";
 import handler from "./api/chat.js";
 
@@ -11,10 +9,16 @@ const app = express();
 app.use(express.json());
 app.use(express.static("public"));
 
-const packageJson = JSON.parse(
-  readFileSync(new URL("./package.json", import.meta.url), "utf-8"),
-);
-const appVersion = packageJson.version;
+function readAppVersion() {
+  try {
+    const packageJson = JSON.parse(
+      readFileSync(new URL("./package.json", import.meta.url), "utf-8"),
+    );
+    return packageJson.version || "unknown";
+  } catch {
+    return "unknown";
+  }
+}
 
 // LOGGING: Check if API Key exists on startup
 if (!process.env.GEMINI_API_KEY) {
@@ -34,7 +38,13 @@ app.post("/api/chat", async (req, res) => {
 });
 
 app.get("/api/version", (req, res) => {
-  res.json({ version: appVersion });
+  res.setHeader(
+    "Cache-Control",
+    "no-store, no-cache, must-revalidate, proxy-revalidate",
+  );
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
+  res.json({ version: readAppVersion() });
 });
 
 const PORT = 3000;

@@ -1,24 +1,44 @@
 export default async function handler(req, res) {
   try {
-    const { topic } = req.body;
+    const { topic, difficulty = "medium", questionCount = 5 } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
+
+    const allowedDifficulties = ["easy", "medium", "hard"];
+    const allowedQuestionCounts = [5, 10, 15];
+    const normalizedDifficulty = String(difficulty || "medium").toLowerCase();
+    const normalizedQuestionCount = Number(questionCount) || 5;
+
+    if (!allowedDifficulties.includes(normalizedDifficulty)) {
+      return res
+        .status(400)
+        .json({ error: "difficulty must be easy, medium, or hard" });
+    }
+
+    if (!allowedQuestionCounts.includes(normalizedQuestionCount)) {
+      return res
+        .status(400)
+        .json({ error: "questionCount must be one of 5, 10, or 15" });
+    }
 
     if (!apiKey)
       return res.status(500).json({ error: "API Key not found in .env" });
 
-    console.log(`\n--- Generating Quiz for: ${topic} ---`);
+    console.log(
+      `\n--- Generating Quiz for: ${topic} (${normalizedDifficulty}, ${normalizedQuestionCount} questions) ---`,
+    );
 
     // Using Gemini 2.5 Flash as it is the current standard workhorse
     const model = "gemini-2.5-flash";
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
-    const prompt = `Generate a fresh 5-question quiz about "${topic}".
+    const prompt = `Generate a fresh ${normalizedQuestionCount}-question quiz about "${topic}".
+    Target difficulty level: ${normalizedDifficulty}.
     Make this set meaningfully different from any previous set for the same topic.
     Requirements:
-    - Use 5 distinct questions with no repeated wording patterns.
+    - Use ${normalizedQuestionCount} distinct questions with no repeated wording patterns.
     - Cover different subtopics, facts, or angles within the topic.
     - Start with a varied mix of question types, not always the same first 3 questions.
-    - Include a balance of easy, medium, and harder questions.
+    - Keep question difficulty consistently aligned to ${normalizedDifficulty}.
     - Avoid duplicate concepts, repeated definitions, or nearly identical questions.
     - Each question must have 4 answer options.
     - Return ONLY the raw JSON array.
