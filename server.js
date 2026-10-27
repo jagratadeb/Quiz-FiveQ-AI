@@ -21,10 +21,10 @@ function readAppVersion() {
 }
 
 // LOGGING: Check if API Key exists on startup
-if (!process.env.GEMINI_API_KEY) {
-  console.log("WARNING: GEMINI_API_KEY is not defined in your .env file!");
+if (!process.env.GROQ_API_KEY && !process.env.GEMINI_API_KEY) {
+  console.log("WARNING: Configure GROQ_API_KEY or GEMINI_API_KEY in your .env file!");
 } else {
-  console.log("API Key detected.");
+  console.log("At least one AI provider key detected.");
 }
 
 app.post("/api/chat", async (req, res) => {

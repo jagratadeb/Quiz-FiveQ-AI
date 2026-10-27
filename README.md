@@ -1,20 +1,20 @@
-# Quiz FiveQ AI - Project Documentation
+# Quiz FiveQ AI
 
 ## 📋 Project Overview
 
-**Project Name:** Quiz FiveQ AI)
+**Project Name:** Quiz FiveQ AI
 
-**Version:** 2.1.7
+**Version:** 3.1.0
 
 **Type:** Full-Stack Web Application
 
-**Purpose:** An AI-powered interactive quiz generation platform that dynamically creates 5-question quizzes on any user-specified topic using Google's Gemini AI models.
+**Purpose:** An AI-powered interactive quiz generation platform that creates custom multiple-choice quizzes on any user-specified topic.
 
 ---
 
 ## 🎯 Project Description
 
-Quiz FiveQ is a web application that leverages artificial intelligence to generate custom quizzes on demand. Users enter a topic of their choice, and the application uses Google's Gemini AI API to intelligently generate five questions with multiple-choice options, correct answers, and educational explanations. The application features a modern, responsive user interface with real-time scoring, caching mechanisms to optimize API usage, and daily usage limits to prevent abuse.
+Quiz FiveQ generates quizzes on demand using Groq first and Google Gemini as an automatic fallback. Users can choose a topic, difficulty, and quiz length, then receive questions with multiple-choice options, correct answers, and explanations. The app includes a responsive interface, real-time scoring, local quiz caching, recent-run history, theme preferences, and daily usage controls.
 
 ---
 
@@ -35,24 +35,26 @@ Quiz FiveQ is a web application that leverages artificial intelligence to genera
   - JSON request/response parsing
   - POST endpoint routing
 
-#### **Google Gemini AI API**
-- **Primary Model:** `gemini-2.5-flash`
-- **Fallback Model:** `gemini-2.0-flash`
+#### **AI Providers**
+- **Primary:** Groq `openai/gpt-oss-120b`
+- **Fallback:** Google Gemini `gemini-3.8-flash`
 - **API Type:** REST API (HTTP POST requests via Fetch API)
 - **Purpose:** AI-powered content generation for quiz questions
-- **Response Format:** JSON with strict schema enforcement
+- **Provider Format:** JSON object containing a `questions` array
+- **API Format:** JSON array of quiz questions
 - **Features:**
   - Generative AI model for text generation
-  - Configurable response MIME type (application/json)
-  - Generation config for structured output
+  - Structured JSON output
+  - Automatic fallback when the primary provider is unavailable
+  - Retries with exponential backoff for temporary provider failures
 
 #### **dotenv**
 - **Version:** ^16.3.1
 - **Role:** Environment variable management
-- **Usage:** Secure storage of GEMINI_API_KEY
+- **Usage:** Secure storage of GROQ_API_KEY and GEMINI_API_KEY
 
 #### **Fetch API**
-- **Role:** HTTP client for making requests to Google Gemini API
+- **Role:** HTTP client for making requests to AI providers
 - **Implementation:** Native browser API in Node.js (v18+)
 
 ### Frontend Technologies
@@ -76,11 +78,11 @@ Quiz FiveQ is a web application that leverages artificial intelligence to genera
   - Background: Dark blue (#0b1120)
   - Text: Light gray (#f1f5f9)
 
-#### **Vanilla JavaScript**
-- **No Framework Dependencies**
+#### **React**
+- **Build Tool:** Vite
 - **Key Features:**
   - Event handling
-  - DOM manipulation
+  - Component-based UI
   - Asynchronous fetch operations
   - LocalStorage API usage
   - Quiz state management
@@ -104,15 +106,16 @@ Quiz FiveQ is a web application that leverages artificial intelligence to genera
 Quiz FiveQ/
 ├── package.json                 # Node.js project metadata and dependencies
 ├── server.js                    # Express server entry point
-├── .env                         # Environment variables (GEMINI_API_KEY)
-├── .gitignore                   # Git ignore patterns
-├── .git/                        # Git repository
-├── node_modules/               # Installed npm dependencies
-├── package-lock.json           # Dependency lock file
+├── .env                         # Local environment variables (not committed)
 ├── api/
-│   └── chat.js                 # REST API handler for quiz generation
-└── public/
-    └── index.html              # Frontend single-page application
+│   ├── chat.js                 # Provider orchestration and quiz API
+│   └── version.js              # Application version API
+├── src/
+│   ├── App.jsx                 # Main React application
+│   └── styles.css              # Application styles
+├── vite.config.js              # Vite build and local API proxy
+├── vercel.json                 # Vercel build configuration
+└── public/                     # Vite production output
 ```
 
 ### File Descriptions
@@ -128,13 +131,13 @@ Quiz FiveQ/
 #### **api/chat.js** (API Handler)
 - Exports default async handler function
 - Receives topic from request body
-- Makes HTTP POST request to Google Gemini API
-- Implements fallback logic (2.5-flash → 2.0-flash)
+- Tries Groq first, then Google Gemini as a fallback
+- Retries temporary provider failures with exponential backoff and timeout
 - Parses JSON response from AI model
 - Returns quiz data as JSON array
 
-#### **public/index.html** (Frontend Application)
-- Complete SPA with embedded CSS and JavaScript
+#### **src/App.jsx** (Frontend Application)
+- React single-page application
 - Three main screens:
   - **Setup Screen:** Topic input field and quiz initiation
   - **Loading Screen:** Loading spinner during AI quiz generation
@@ -146,7 +149,7 @@ Quiz FiveQ/
 #### **package.json** (Project Configuration)
 - Project metadata (name, version)
 - Dependency declarations
-- NPM scripts configuration
+- Development, build, and preview scripts
 
 ---
 
@@ -158,7 +161,7 @@ The application uses a **RESTful architecture** with the following characteristi
 
 #### **Endpoint: POST /api/chat**
 
-**Purpose:** Generate a 5-question quiz on a specified topic
+**Purpose:** Generate a 5, 10, or 15-question quiz on a specified topic
 
 **Request:**
 ```json
@@ -180,12 +183,70 @@ The application uses a **RESTful architecture** with the following characteristi
 ]
 ```
 
-**Response (Error - 500 Server Error):**
+**Response (Error - 503 Service Unavailable):**
 ```json
 {
-  "error": "API Key not found in .env"
+  "error": "The AI services are temporarily unavailable. Please wait a moment and try again."
 }
 ```
 
 **HTTP Methods:**
 - POST: Create new quiz data
+
+## 💻 Local Development
+
+### Prerequisites
+
+- Node.js 18 or newer
+- A Groq API key
+- A Gemini API key for fallback (recommended)
+
+Create a local `.env` file in the project root:
+
+```text
+GROQ_API_KEY=your_groq_api_key
+GEMINI_API_KEY=your_gemini_api_key
+```
+
+At least one key is required. Groq is tried first; Gemini is used when Groq
+fails or is unavailable. The keys must remain server-side and must not be
+added to frontend code or committed to Git.
+
+Install dependencies and start both the API server and Vite:
+
+```bash
+npm install
+npm run dev:full
+```
+
+Open [http://localhost:5173](http://localhost:5173). The Express API runs on
+port 3000, and Vite proxies `/api` requests to it.
+
+Other useful commands:
+
+```bash
+npm run server  # Start only the Express API
+npm run dev     # Start only the Vite frontend
+npm run build   # Create the production build
+npm run preview # Preview the production build locally
+```
+
+## 🚀 Deploying to Vercel
+
+1. Push this repository to GitHub and import it into Vercel.
+2. Keep the framework preset as **Vite**. The repository's `vercel.json` runs
+   `npm run build` and serves the generated `public` directory.
+3. In **Project Settings → Environment Variables**, add:
+
+   ```text
+   GROQ_API_KEY=your_groq_key
+   GEMINI_API_KEY=your_gemini_key
+   ```
+
+   Groq is tried first. Gemini is used when Groq is unavailable. At least one
+   key is required; configure both for automatic fallback.
+4. Redeploy after saving the environment variables.
+
+The keys are read only by the serverless functions in `api/` and are never
+exposed to the browser. For local development, copy `.env.example` to `.env`
+and add the keys there, then run `npm run dev:full`.
